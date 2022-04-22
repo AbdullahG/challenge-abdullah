@@ -8,7 +8,7 @@ an interesting way to spend a couple of hours.
 We want to create an REST API for invoicing. But so far we have only got a rough API draft and some pseudo code.
 
 Most of our services are built using Spring Boot and Kotlin. So [spring initializr](https://start.spring.io/) might be a
-good starting point to bootstrap the initial setup.
+good starting point to boo tstrap the initial setup.
 
 Note: It is recommended to use an in-memory database, after all this is just an assessment.
 
