@@ -1,16 +1,22 @@
 package com.tooltime.abdullahchallenge.entity;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public class Invoice {
-  private final String id;
-  private final String code;
-  private final String title;
-  private final String description;
-  private final String issuedAt;
-  private final Customer customer;
-  private final List<InvoicePosition> positions;
-  private final Float totalAmount;
+  private String id;
+  private String code;
+  private String title;
+  private String description;
+  private String issuedAt;
+  private Customer customer;
+  private List<InvoicePosition> positions;
+  private Float totalAmount;
 
   public Invoice(String id, String code, String title, String description, String issuedAt,
       Customer customer, List<InvoicePosition> positions, Float totalAmount) {

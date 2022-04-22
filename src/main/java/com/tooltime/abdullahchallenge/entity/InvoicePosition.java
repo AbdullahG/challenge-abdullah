@@ -1,8 +1,13 @@
 package com.tooltime.abdullahchallenge.entity;
 
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@NoArgsConstructor
+@Setter
 public class InvoicePosition {
-  private final String description;
-  private final Float totalAmount;
+  private String description;
+  private Float totalAmount;
 
   public InvoicePosition(String description, Float totalAmount) {
     this.description = description;

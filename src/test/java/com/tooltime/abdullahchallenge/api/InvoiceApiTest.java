@@ -6,10 +6,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tooltime.abdullahchallenge.AbdullahChallengeApplication;
 import com.tooltime.abdullahchallenge.dto.CreateInvoiceDto;
 import com.tooltime.abdullahchallenge.dto.InvoicePositionDto;
+import com.tooltime.abdullahchallenge.entity.Invoice;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,7 +57,7 @@ public class InvoiceApiTest {
   }
 
   @Test
-  public void givenGreetURI_whenMockMVC_thenVerifyResponse() throws Exception {
+  public void givenInvoice_whenMockMVC_thenVerifyResponse() throws Exception {
     List<InvoicePositionDto> positionDtos = new ArrayList<>();
     positionDtos.add(new InvoicePositionDto("position-description-1", 55.5f));
     positionDtos.add(new InvoicePositionDto("position-description-2", 77.5f));
@@ -78,5 +80,44 @@ public class InvoiceApiTest {
 
     Assertions.assertThat("application/json")
         .isEqualTo(mvcResult.getResponse().getContentType());
+  }
+
+  @Test
+  void should_return_invoice_by_id() throws Exception {
+    List<InvoicePositionDto> positionDtos = new ArrayList<>();
+    positionDtos.add(new InvoicePositionDto("position-description-1", 55.5f));
+    positionDtos.add(new InvoicePositionDto("position-description-2", 77.5f));
+    ObjectMapper objectMapper = new ObjectMapper();
+    CreateInvoiceDto createInvoiceDto = new CreateInvoiceDto("invoice-title", "invoice-description",
+        1L, positionDtos);
+
+    CreateInvoiceDto createInvoiceDto_second = new CreateInvoiceDto("invoice-title-2", "invoice-description-2",
+        1L, positionDtos);
+
+    MvcResult mvcResult = this.mockMvc.perform(post("/api/invoice").content(
+            objectMapper.writeValueAsString(createInvoiceDto)
+        ).contentType(MediaType.APPLICATION_JSON).characterEncoding(StandardCharsets.UTF_8))
+        .andDo(print()).andExpect(status().isOk()).andReturn();
+
+    this.mockMvc.perform(post("/api/invoice").content(
+            objectMapper.writeValueAsString(createInvoiceDto_second)
+        ).contentType(MediaType.APPLICATION_JSON).characterEncoding(StandardCharsets.UTF_8))
+        .andDo(print()).andExpect(status().isOk()).andReturn();
+
+    Invoice invoice = objectMapper.readValue(mvcResult.getResponse().getContentAsByteArray(),
+        Invoice.class);
+    String id = invoice.getId();
+
+    this.mockMvc.perform(get("/api/invoice/{id}", id).characterEncoding(StandardCharsets.UTF_8))
+        .andDo(print()).andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(id))
+        .andExpect(jsonPath("$.code").value(invoice.getCode()))
+        .andExpect(jsonPath("$.title").value(createInvoiceDto.getTitle()))
+        .andExpect(jsonPath("$.description").value(createInvoiceDto.getDescription()))
+        .andExpect(jsonPath("$.issuedAt").value(invoice.getIssuedAt()))
+        .andExpect(jsonPath("$.customer.id").value(invoice.getCustomer().getId()))
+        .andExpect(jsonPath("$.positions").isArray())
+        .andExpect(jsonPath("$.totalAmount").value(133f))
+        .andReturn();
   }
 }
